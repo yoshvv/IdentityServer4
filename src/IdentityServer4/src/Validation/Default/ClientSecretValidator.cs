@@ -55,9 +55,10 @@ namespace IdentityServer4.Validation
             };
 
             var parsedSecret = await _parser.ParseAsync(context);
+            var grantType = context.Request.Form["grant_type"];
             if (parsedSecret == null)
             {
-                await RaiseFailureEventAsync("unknown", "No client id found");
+                await RaiseFailureEventAsync("unknown", "No client id found", grantType);
 
                 _logger.LogError("No client identifier found");
                 return fail;
@@ -67,7 +68,7 @@ namespace IdentityServer4.Validation
             var client = await _clients.FindEnabledClientByIdAsync(parsedSecret.Id);
             if (client == null)
             {
-                await RaiseFailureEventAsync(parsedSecret.Id, "Unknown client");
+                await RaiseFailureEventAsync(parsedSecret.Id, "Unknown client", grantType);
 
                 _logger.LogError("No client with id '{clientId}' found. aborting", parsedSecret.Id);
                 return fail;
@@ -76,7 +77,7 @@ namespace IdentityServer4.Validation
             SecretValidationResult secretValidationResult = null;
             if (!client.RequireClientSecret || client.IsImplicitOnly())
             {
-                _logger.LogDebug("Public Client - skipping secret validation success");
+                _logger.LogDebug("Public Client - skipping secret validation success", grantType);
             }
             else
             {
@@ -109,9 +110,9 @@ namespace IdentityServer4.Validation
             return _events.RaiseAsync(new ClientAuthenticationSuccessEvent(clientId, authMethod));
         }
 
-        private Task RaiseFailureEventAsync(string clientId, string message)
+        private Task RaiseFailureEventAsync(string clientId, string message, string grantType)
         {
-            return _events.RaiseAsync(new ClientAuthenticationFailureEvent(clientId, message));
+            return _events.RaiseAsync(new ClientAuthenticationFailureEvent(clientId, message, grantType));
         }
     }
 }

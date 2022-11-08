@@ -15,7 +15,7 @@ namespace IdentityServer4.Events
         /// </summary>
         /// <param name="clientId">The client identifier.</param>
         /// <param name="message">The message.</param>
-        public ClientAuthenticationFailureEvent(string clientId, string message)
+        public ClientAuthenticationFailureEvent(string clientId, string message, string grantType)
             : base(EventCategories.Authentication, 
                   "Client Authentication Failure",
                   EventTypes.Failure, 
@@ -23,6 +23,7 @@ namespace IdentityServer4.Events
                   message)
         {
             ClientId = clientId;
+            GrantType = grantType;
         }
 
         /// <summary>
@@ -32,5 +33,10 @@ namespace IdentityServer4.Events
         /// The client identifier.
         /// </value>
         public string ClientId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the request grant-type
+        /// </summary>
+        public string GrantType { get; set; }
     }
 }
